@@ -1,47 +1,50 @@
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { useDropzone } from 'react-dropzone';
-import { TicketFormValues, Ticket } from '../types/ticketTypes';
-import { useTicketService } from '../services/ticketService';
 
-const validationSchema = Yup.object({
-  title: Yup.string().required('Title is required'),
-  description: Yup.string().required('Description is required'),
-  priority: Yup.string().oneOf(['Low', 'Medium', 'High', 'Critical']).required('Priority is required'),
-  status: Yup.string().oneOf(['Open', 'In Progress', 'Resolved', 'Closed']).required('Status is required'),
-  reporter: Yup.string().required('Reporter is required'),
-  category: Yup.string().required('Category is required'),
-});
+import { useState, useEffect } from 'react';
+import * as ticketService from '../services/ticketService';
+import { Ticket } from '../types/ticketTypes';
 
-export const useTicketForm = (onSubmit: (ticket: Ticket) => void) => {
-  const ticketService = useTicketService();
+export const useTickets = () => {
+  const [tickets, setTickets] = useState<Ticket[]>([]);
 
-  const formik = useFormik<TicketFormValues>({
-    initialValues: {
-      title: '',
-      description: '',
-      priority: 'Low',
-      status: 'Open',
-      reporter: '',
-      assignee: '',
-      category: '',
-      attachment: null,
-    },
-    validationSchema,
-    onSubmit: async (values) => {
-      const ticket = await ticketService.createTicket(values);
-      onSubmit(ticket);
-    },
-  });
-
-  const onDrop = (acceptedFiles: File[]) => {
-    formik.setFieldValue('attachment', acceptedFiles[0]);
+  const fetchTickets = async () => {
+    try {
+      const fetchedTickets = await ticketService.fetchTickets();
+      setTickets(fetchedTickets);
+    } catch (error) {
+      console.error('Error fetching tickets:', error);
+    }
   };
 
-  const { getRootProps, getInputProps } = useDropzone({ onDrop });
-
-  return {
-    formik,
-    fileUploadProps: { getRootProps, getInputProps },
+  const addTicket = async (ticketData: FormData) => {
+    try {
+      await ticketService.createTicket(ticketData);
+      fetchTickets();
+    } catch (error) {
+      console.error('Error adding ticket:', error);
+    }
   };
+
+  const updateTicket = async (id: number, ticketData: FormData) => {
+    try {
+      await ticketService.updateTicket(id, ticketData);
+      fetchTickets();
+    } catch (error) {
+      console.error('Error updating ticket:', error);
+    }
+  };
+
+  const deleteTicket = async (id: number) => {
+    try {
+      await ticketService.deleteTicket(id);
+      fetchTickets();
+    } catch (error) {
+      console.error('Error deleting ticket:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchTickets();
+  }, []);
+
+  return { tickets, fetchTickets, addTicket, updateTicket, deleteTicket };
 };

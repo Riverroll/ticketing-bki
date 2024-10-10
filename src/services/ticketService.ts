@@ -1,32 +1,39 @@
-import axios from 'axios';
-import { Troubleshoot } from '../types/ticketTypes';
 
-const API_URL = import.meta.env.VITE_API_URL;
+import axios from '../utils/axiosinstance';
+import { Ticket } from '../types/ticketTypes';
 
-export const getTickets = async (): Promise<Troubleshoot[]> => {
-    const response = await axios.get(`${API_URL}/tickets`);
+export const fetchTickets = async (): Promise<Ticket[]> => {
+  try {
+    const response = await axios.get<Ticket[]>('/tickets');
+    if (response.status !== 200) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
     return response.data;
+  } catch (error) {
+    console.error('Error fetching tickets:', error);
+    throw error;
+  }
 };
 
-export const createTicket = async (ticket: Troubleshoot): Promise<Troubleshoot> => {
-    const response = await axios.post(`${API_URL}/tickets`, ticket);
-    return response.data;
+export const createTicket = async (ticketData: FormData): Promise<Ticket> => {
+  const response = await axios.post<Ticket>('/tickets', ticketData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
 };
 
-export const updateTicket = async (ticket: Troubleshoot): Promise<Troubleshoot> => {
-    const response = await axios.put(`${API_URL}/tickets/${ticket.ticket_id}`, ticket);
-    return response.data;
+export const updateTicket = async (ticketId: number, ticketData: FormData): Promise<Ticket> => {
+  const response = await axios.put<Ticket>(`/tickets/${ticketId}`, ticketData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
 };
 
 export const deleteTicket = async (ticketId: number): Promise<void> => {
-    await axios.delete(`${API_URL}/tickets/${ticketId}`);
+  await axios.delete(`/tickets/${ticketId}`);
 };
 
-export const useTicketService = () => {
-    const createTicket = async (ticketData: Partial<Ticket>): Promise<Ticket> => {
-      const response = await axios.post<Ticket>('/api/tickets', ticketData);
-      return response.data;
-    };
-  
-    return { createTicket };
-  };
+export const fetchAttachment = async (filename: string): Promise<string> => {
+  const response = await axios.get(`/tickets/attachments/${filename}`, { responseType: 'blob' });
+  return URL.createObjectURL(response.data);
+};
