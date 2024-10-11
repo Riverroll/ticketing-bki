@@ -11,11 +11,11 @@ import {
 import { Box, Button } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
-import { Troubleshoot } from '../types/ticketTypes';
+import { Ticket } from '../../types/ticketTypes';
 
 interface DataTableProps {
-  tickets: Troubleshoot[];
-  onEdit: (ticket: Troubleshoot) => void;
+  tickets: Ticket[];
+  onEdit: (ticket: Ticket) => void;
   onDelete: (ticketId: number) => void;
 }
 
@@ -42,7 +42,7 @@ export const DataTable: React.FC<DataTableProps> = ({ tickets, onEdit, onDelete 
       width: 200,
       renderCell: (params) => (
         <Box>
-          <Button onClick={() => onEdit(params.row as Troubleshoot)}>
+          <Button onClick={() => onEdit(params.row as Ticket)}>
             <EditIcon />
           </Button>
           <Button onClick={() => onDelete(params.row.ticket_id)}>

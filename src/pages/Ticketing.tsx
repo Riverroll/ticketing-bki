@@ -15,16 +15,16 @@ import {
 import { DataTable } from '../cards/tables/dataTable';
 import { Modal } from '../components/Modal';
 import { useTickets } from '../hooks/useTicketForm';
-import Troubleshoot from '../types/ticketTypes';
+import { Ticket } from '../types/ticketTypes';
 
 export const Ticketing: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingTicket, setEditingTicket] = useState<Troubleshoot | null>(null);
+  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [ticketToDelete, setTicketToDelete] = useState<number | null>(null);
   const { tickets, fetchTickets, addTicket, updateTicket, deleteTicket } = useTickets();
 
-  const handleOpenModal = (ticket?: Troubleshoot) => {
+  const handleOpenModal = (ticket?: Ticket) => {
     setEditingTicket(ticket || null);
     setIsModalOpen(true);
   };
