@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { 
     DataGrid, 
     GridColDef, 
@@ -22,8 +22,20 @@ interface DataTableProps {
 const API_URL = import.meta.env.VITE_API_URL;
 
 export const DataTable: React.FC<DataTableProps> = ({ tickets, onEdit, onDelete }) => {
+  const indexedTickets = useMemo(() => 
+    tickets.map((ticket, index) => ({
+      ...ticket,
+      index: index + 1
+    })),
+    [tickets]
+  );
+
   const columns: GridColDef[] = [
-    { field: 'ticket_id', headerName: 'ID', width: 50 },
+    { 
+      field: 'index', 
+      headerName: 'No',
+      width: 70,
+    },
     {
       field: 'actions',
       headerName: 'Aksi',
@@ -87,7 +99,7 @@ export const DataTable: React.FC<DataTableProps> = ({ tickets, onEdit, onDelete 
 
   return (
     <DataGrid
-      rows={tickets}
+      rows={indexedTickets}
       columns={columns}
       getRowId={(row) => row.ticket_id}
       slots={{
